@@ -1,5 +1,8 @@
 # NET4207 Stock Inventory Manager
 
+**Author / Student:** HRISHI LAKAMSANI  
+**Repository:** https://github.com/tejasrmap/Lab-HR.git  
+
 A Flutter mobile inventory application integrated with Google Firebase Cloud Firestore for real-time stock management, validation, and advanced filtering.
 
 ---
