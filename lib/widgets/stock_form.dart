@@ -200,7 +200,7 @@ class _StockFormState extends State<StockForm> {
 
               // 3. Category Selector
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: const InputDecoration(
                   labelText: 'Category *',
                   prefixIcon: Icon(Icons.category),

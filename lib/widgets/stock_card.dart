@@ -71,7 +71,7 @@ class StockCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.red.shade100,
                       borderRadius: BorderRadius.circular(6),
-                      border: BorderSide(color: Colors.red.shade400),
+                      border: Border.all(color: Colors.red.shade400),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -109,7 +109,7 @@ class StockCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(8),
-                border: BorderSide(color: Colors.grey.shade200),
+                border: Border.all(color: Colors.grey.shade200),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

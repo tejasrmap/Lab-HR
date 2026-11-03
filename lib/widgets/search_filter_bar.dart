@@ -81,23 +81,29 @@ class SearchFilterBar extends StatelessWidget {
                 // Category Filter
                 Expanded(
                   flex: 5,
-                  child: DropdownButtonFormField<String>(
-                    value: selectedCategory,
+                  child: InputDecorator(
                     decoration: InputDecoration(
                       labelText: 'Category',
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    items: categories.map((cat) {
-                      return DropdownMenuItem<String>(
-                        value: cat,
-                        child: Text(cat, overflow: TextOverflow.ellipsis),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) onCategoryChanged(val);
-                    },
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedCategory,
+                        isDense: true,
+                        isExpanded: true,
+                        items: categories.map((cat) {
+                          return DropdownMenuItem<String>(
+                            value: cat,
+                            child: Text(cat, overflow: TextOverflow.ellipsis),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) onCategoryChanged(val);
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -105,31 +111,37 @@ class SearchFilterBar extends StatelessWidget {
                 // Sort By Quantity
                 Expanded(
                   flex: 5,
-                  child: DropdownButtonFormField<QuantitySortOrder>(
-                    value: sortOrder,
+                  child: InputDecorator(
                     decoration: InputDecoration(
                       labelText: 'Sort Qty',
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: QuantitySortOrder.none,
-                        child: Text('Default'),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<QuantitySortOrder>(
+                        value: sortOrder,
+                        isDense: true,
+                        isExpanded: true,
+                        items: const [
+                          DropdownMenuItem(
+                            value: QuantitySortOrder.none,
+                            child: Text('Default'),
+                          ),
+                          DropdownMenuItem(
+                            value: QuantitySortOrder.ascending,
+                            child: Text('Qty: Low to High'),
+                          ),
+                          DropdownMenuItem(
+                            value: QuantitySortOrder.descending,
+                            child: Text('Qty: High to Low'),
+                          ),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) onSortOrderChanged(val);
+                        },
                       ),
-                      DropdownMenuItem(
-                        value: QuantitySortOrder.ascending,
-                        child: Text('Qty: Low to High'),
-                      ),
-                      DropdownMenuItem(
-                        value: QuantitySortOrder.descending,
-                        child: Text('Qty: High to Low'),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) onSortOrderChanged(val);
-                    },
+                    ),
                   ),
                 ),
               ],
@@ -149,7 +161,7 @@ class SearchFilterBar extends StatelessWidget {
                     children: [
                       Switch.adaptive(
                         value: lowStockOnly,
-                        activeColor: Colors.redAccent,
+                        activeTrackColor: Colors.redAccent,
                         onChanged: onLowStockChanged,
                       ),
                       const Text(
