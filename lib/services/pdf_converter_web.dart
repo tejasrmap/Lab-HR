@@ -48,3 +48,4 @@ void triggerImageDownload(Uint8List imageBytes, String filename) {
     _downloadImageFile(dataUrl.toJS, filename.toJS);
   } catch (_) {}
 }
+

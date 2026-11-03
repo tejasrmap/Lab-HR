@@ -17,3 +17,4 @@ Future<PdfConversionResult> convertPdfBytesToImages(Uint8List pdfBytes) async {
 void triggerImageDownload(Uint8List imageBytes, String filename) {
   // Stub for non-web platforms
 }
+
