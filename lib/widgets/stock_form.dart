@@ -16,7 +16,6 @@ class _StockFormState extends State<StockForm> {
   final _formKey = GlobalKey<FormState>();
   final FirestoreService _firestoreService = FirestoreService();
 
-  // Permitted categories per specification
   static const List<String> categories = [
     'Electronics',
     'Stationery',
@@ -24,7 +23,6 @@ class _StockFormState extends State<StockForm> {
     'Grocery',
   ];
 
-  // Controllers
   final _skuController = TextEditingController();
   final _itemNameController = TextEditingController();
   final _quantityController = TextEditingController();
@@ -45,15 +43,21 @@ class _StockFormState extends State<StockForm> {
   }
 
   Future<void> _submitForm() async {
-    // Dismiss keyboard
     FocusScope.of(context).unfocus();
 
-    // 1. Validate Form (gating any Firestore write)
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please correct the errors in the form before saving.'),
-          backgroundColor: Colors.redAccent,
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white, size: 20),
+              SizedBox(width: 10),
+              Text('Please fix the form errors before saving.'),
+            ],
+          ),
+          backgroundColor: const Color(0xFFDC2626),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
       return;
@@ -74,21 +78,28 @@ class _StockFormState extends State<StockForm> {
         reorderLevel: int.parse(_reorderLevelController.text.trim()),
       );
 
-      // Save to Firebase Cloud Firestore
       await _firestoreService.addStockItem(newItem);
 
       if (!mounted) return;
 
-      // 2. Success feedback acknowledged
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Item "${newItem.sku} - ${newItem.itemName}" saved to Firestore successfully!'),
-          backgroundColor: Colors.green.shade700,
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text('Item "${newItem.sku} - ${newItem.itemName}" saved to Firestore!'),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF16A34A),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           duration: const Duration(seconds: 3),
         ),
       );
 
-      // Clear the form only upon successful save
       _skuController.clear();
       _itemNameController.clear();
       _quantityController.clear();
@@ -104,12 +115,11 @@ class _StockFormState extends State<StockForm> {
       }
     } catch (e) {
       if (!mounted) return;
-      // Do NOT clear form inputs on failure, show clear error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to save to Firestore: ${e.toString()}'),
-          backgroundColor: Colors.red.shade800,
-          duration: const Duration(seconds: 5),
+          backgroundColor: const Color(0xFFDC2626),
+          behavior: SnackBarBehavior.floating,
         ),
       );
     } finally {
@@ -124,195 +134,107 @@ class _StockFormState extends State<StockForm> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossFadeState.showFirst == CrossFadeState.showFirst
-                ? CrossAxisAlignment.stretch
-                : CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Header
               Row(
                 children: [
-                  Icon(Icons.add_box_rounded, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Add New Stock Item',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
-              const Divider(height: 24),
-
-              // 1. SKU Field
-              TextFormField(
-                controller: _skuController,
-                decoration: const InputDecoration(
-                  labelText: 'SKU *',
-                  hintText: 'e.g. STK-101',
-                  prefixIcon: Icon(Icons.qr_code),
-                  border: OutlineInputBorder(),
-                  helperText: 'Format: STK- followed by 3 digits',
-                ),
-                textCapitalization: TextCapitalization.characters,
-                validator: (value) {
-                  final text = value?.trim() ?? '';
-                  if (text.isEmpty) {
-                    return 'SKU is required';
-                  }
-                  final skuRegex = RegExp(r'^STK-\d{3}$', caseSensitive: false);
-                  if (!skuRegex.hasMatch(text)) {
-                    return 'Invalid SKU. Format must be STK- followed by 3 digits (e.g. STK-101)';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // 2. Item Name Field
-              TextFormField(
-                controller: _itemNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Item Name *',
-                  hintText: 'e.g. USB C Cable',
-                  prefixIcon: Icon(Icons.inventory_2),
-                  border: OutlineInputBorder(),
-                  helperText: 'Minimum 3 characters',
-                ),
-                validator: (value) {
-                  final text = value?.trim() ?? '';
-                  if (text.isEmpty) {
-                    return 'Item name is required';
-                  }
-                  if (text.length < 3) {
-                    return 'Item name must be at least 3 characters long';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // 3. Category Selector
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category *',
-                  prefixIcon: Icon(Icons.category),
-                  border: OutlineInputBorder(),
-                ),
-                hint: const Text('Select category'),
-                items: categories.map((cat) {
-                  return DropdownMenuItem<String>(
-                    value: cat,
-                    child: Text(cat),
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  setState(() {
-                    _selectedCategory = val;
-                  });
-                },
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Please select a category';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // 4. Quantity Field & 5. Reorder Level Field (in a row)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _quantityController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Quantity *',
-                        hintText: 'e.g. 10',
-                        prefixIcon: Icon(Icons.format_list_numbered),
-                        border: OutlineInputBorder(),
-                        helperText: 'Integer >= 0',
-                      ),
-                      validator: (value) {
-                        final text = value?.trim() ?? '';
-                        if (text.isEmpty) {
-                          return 'Quantity is required';
-                        }
-                        final intVal = int.tryParse(text);
-                        if (intVal == null || intVal < 0) {
-                          return 'Enter whole number >= 0';
-                        }
-                        return null;
-                      },
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: const Icon(Icons.add_shopping_cart_rounded, color: Color(0xFF1E40AF), size: 20),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _reorderLevelController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Reorder Level *',
-                        hintText: 'e.g. 5',
-                        prefixIcon: Icon(Icons.notification_important_outlined),
-                        border: OutlineInputBorder(),
-                        helperText: 'Integer >= 0',
-                      ),
-                      validator: (value) {
-                        final text = value?.trim() ?? '';
-                        if (text.isEmpty) {
-                          return 'Reorder level required';
-                        }
-                        final intVal = int.tryParse(text);
-                        if (intVal == null || intVal < 0) {
-                          return 'Enter whole number >= 0';
-                        }
-                        return null;
-                      },
+                  const Text(
+                    'Add New Stock Item',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      'All fields required',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              // 6. Unit Price Field (RM)
-              TextFormField(
-                controller: _unitPriceController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Unit Price (RM) *',
-                  hintText: 'e.g. 19.90',
-                  prefixText: 'RM ',
-                  prefixIcon: Icon(Icons.attach_money),
-                  border: OutlineInputBorder(),
-                  helperText: 'Must be greater than 0',
-                ),
-                validator: (value) {
-                  final text = value?.trim() ?? '';
-                  if (text.isEmpty) {
-                    return 'Unit price is required';
-                  }
-                  final doubleVal = double.tryParse(text);
-                  if (doubleVal == null || doubleVal <= 0) {
-                    return 'Price must be a valid positive number (> 0)';
-                  }
-                  return null;
+              // Layout: Responsive 2-column grid
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 580;
+
+                  return Column(
+                    children: [
+                      // Row 1: SKU & Item Name
+                      if (isWide)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 2, child: _buildSkuField()),
+                            const SizedBox(width: 14),
+                            Expanded(flex: 3, child: _buildNameField()),
+                          ],
+                        )
+                      else ...[
+                        _buildSkuField(),
+                        const SizedBox(height: 14),
+                        _buildNameField(),
+                      ],
+                      const SizedBox(height: 14),
+
+                      // Row 2: Category & Unit Price
+                      if (isWide)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildCategoryField()),
+                            const SizedBox(width: 14),
+                            Expanded(child: _buildPriceField()),
+                          ],
+                        )
+                      else ...[
+                        _buildCategoryField(),
+                        const SizedBox(height: 14),
+                        _buildPriceField(),
+                      ],
+                      const SizedBox(height: 14),
+
+                      // Row 3: Quantity & Reorder Level
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: _buildQuantityField()),
+                          const SizedBox(width: 14),
+                          Expanded(child: _buildReorderField()),
+                        ],
+                      ),
+                    ],
+                  );
                 },
               ),
               const SizedBox(height: 20),
 
-              // Save Item Button with Progress Indicator
+              // Save Item Button
               SizedBox(
                 height: 48,
                 child: ElevatedButton.icon(
@@ -323,17 +245,16 @@ class _StockFormState extends State<StockForm> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Icon(Icons.save),
+                      : const Icon(Icons.cloud_upload_rounded, size: 20),
                   label: Text(
-                    _isSaving ? 'Saving to Firestore...' : 'Save Item',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    _isSaving ? 'Writing to Firestore...' : 'Save Stock Item',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: const Color(0xFF1E40AF),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
               ),
@@ -343,5 +264,122 @@ class _StockFormState extends State<StockForm> {
       ),
     );
   }
-}
 
+  Widget _buildSkuField() {
+    return TextFormField(
+      controller: _skuController,
+      decoration: const InputDecoration(
+        labelText: 'SKU *',
+        hintText: 'e.g. STK-101',
+        prefixIcon: Icon(Icons.tag_rounded, size: 20),
+        helperText: 'STK- followed by 3 digits',
+      ),
+      textCapitalization: TextCapitalization.characters,
+      validator: (value) {
+        final text = value?.trim() ?? '';
+        if (text.isEmpty) return 'SKU is required';
+        if (!RegExp(r'^STK-\d{3}$', caseSensitive: false).hasMatch(text)) {
+          return 'Must be format STK-### (e.g. STK-101)';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildNameField() {
+    return TextFormField(
+      controller: _itemNameController,
+      decoration: const InputDecoration(
+        labelText: 'Item Name *',
+        hintText: 'e.g. USB C Cable',
+        prefixIcon: Icon(Icons.inventory_2_outlined, size: 20),
+        helperText: 'Minimum 3 characters',
+      ),
+      validator: (value) {
+        final text = value?.trim() ?? '';
+        if (text.isEmpty) return 'Item name is required';
+        if (text.length < 3) return 'Must be at least 3 characters';
+        return null;
+      },
+    );
+  }
+
+  Widget _buildCategoryField() {
+    return DropdownButtonFormField<String>(
+      initialValue: _selectedCategory,
+      decoration: const InputDecoration(
+        labelText: 'Category *',
+        prefixIcon: Icon(Icons.category_outlined, size: 20),
+      ),
+      hint: const Text('Select category'),
+      items: categories.map((cat) {
+        return DropdownMenuItem<String>(value: cat, child: Text(cat));
+      }).toList(),
+      onChanged: (val) => setState(() => _selectedCategory = val),
+      validator: (val) => (val == null || val.isEmpty) ? 'Category is required' : null,
+    );
+  }
+
+  Widget _buildPriceField() {
+    return TextFormField(
+      controller: _unitPriceController,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: const InputDecoration(
+        labelText: 'Unit Price (RM) *',
+        hintText: 'e.g. 19.90',
+        prefixText: 'RM ',
+        prefixIcon: Icon(Icons.payments_outlined, size: 20),
+        helperText: 'Amount > 0',
+      ),
+      validator: (value) {
+        final text = value?.trim() ?? '';
+        if (text.isEmpty) return 'Price required';
+        final val = double.tryParse(text);
+        if (val == null || val <= 0) return 'Must be positive number (> 0)';
+        return null;
+      },
+    );
+  }
+
+  Widget _buildQuantityField() {
+    return TextFormField(
+      controller: _quantityController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      decoration: const InputDecoration(
+        labelText: 'Quantity *',
+        hintText: 'e.g. 4',
+        prefixIcon: Icon(Icons.numbers_rounded, size: 20),
+        helperText: 'Integer >= 0',
+      ),
+      validator: (value) {
+        final text = value?.trim() ?? '';
+        if (text.isEmpty) return 'Quantity required';
+        final val = int.tryParse(text);
+        if (val == null || val < 0) return 'Must be whole number >= 0';
+        return null;
+      },
+    );
+  }
+
+  Widget _buildReorderField() {
+    return TextFormField(
+      controller: _reorderLevelController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      decoration: const InputDecoration(
+        labelText: 'Reorder Level *',
+        hintText: 'e.g. 5',
+        prefixIcon: Icon(Icons.flag_outlined, size: 20),
+        helperText: 'Integer >= 0',
+      ),
+      validator: (value) {
+        final text = value?.trim() ?? '';
+        if (text.isEmpty) return 'Reorder level required';
+        final val = int.tryParse(text);
+        if (val == null || val < 0) return 'Must be whole number >= 0';
+        return null;
+      },
+    );
+  }
+}
