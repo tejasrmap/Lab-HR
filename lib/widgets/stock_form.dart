@@ -50,9 +50,9 @@ class _StockFormState extends State<StockForm> {
         SnackBar(
           content: const Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.white, size: 20),
+              Icon(Icons.error_outline_rounded, color: Colors.white, size: 20),
               SizedBox(width: 10),
-              Text('Please fix the form errors before saving.'),
+              Text('Please resolve the highlighted validation errors.'),
             ],
           ),
           backgroundColor: const Color(0xFFDC2626),
@@ -86,16 +86,19 @@ class _StockFormState extends State<StockForm> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 20),
               const SizedBox(width: 10),
               Expanded(
                 child: Text('Item "${newItem.sku} - ${newItem.itemName}" saved to Firestore!'),
               ),
             ],
           ),
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: const Color(0xFF0F172A),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(color: Color(0xFF10B981), width: 1),
+          ),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -118,7 +121,7 @@ class _StockFormState extends State<StockForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to save to Firestore: ${e.toString()}'),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: const Color(0xFF991B1B),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -133,10 +136,22 @@ class _StockFormState extends State<StockForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D1527),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1E293B)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(22.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -148,37 +163,57 @@ class _StockFormState extends State<StockForm> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(8),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF06B6D4), Color(0xFF6366F1)],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.add_shopping_cart_rounded, color: Color(0xFF1E40AF), size: 20),
+                    child: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 18),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Add New Stock Item',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF0F172A),
-                    ),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Record New Stock Item',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      Text(
+                        'Direct Cloud Firestore write integration',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                      ),
+                    ],
                   ),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(6),
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF334155)),
                     ),
-                    child: const Text(
-                      'All fields required',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.shield_outlined, size: 12, color: Color(0xFF38BDF8)),
+                        SizedBox(width: 4),
+                        Text(
+                          'Strict Validation',
+                          style: TextStyle(fontSize: 10, color: Color(0xFF38BDF8), fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 20),
 
-              // Layout: Responsive 2-column grid
+              // Responsive Inputs Grid
               LayoutBuilder(
                 builder: (context, constraints) {
                   final isWide = constraints.maxWidth > 580;
@@ -232,29 +267,44 @@ class _StockFormState extends State<StockForm> {
                   );
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 22),
 
-              // Save Item Button
+              // Submit Button: High-Tech Gradient
               SizedBox(
                 height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: _isSaving ? null : _submitForm,
-                  icon: _isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Icon(Icons.cloud_upload_rounded, size: 20),
-                  label: Text(
-                    _isSaving ? 'Writing to Firestore...' : 'Save Stock Item',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF06B6D4), Color(0xFF3B82F6), Color(0xFF6366F1)],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF06B6D4).withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E40AF),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  child: ElevatedButton.icon(
+                    onPressed: _isSaving ? null : _submitForm,
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.cloud_upload_rounded, size: 20),
+                    label: Text(
+                      _isSaving ? 'Writing to Firestore Database...' : 'Save Stock Item',
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                   ),
                 ),
               ),
@@ -268,18 +318,20 @@ class _StockFormState extends State<StockForm> {
   Widget _buildSkuField() {
     return TextFormField(
       controller: _skuController,
+      style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: const InputDecoration(
         labelText: 'SKU *',
         hintText: 'e.g. STK-101',
-        prefixIcon: Icon(Icons.tag_rounded, size: 20),
+        prefixIcon: Icon(Icons.tag_rounded, size: 18, color: Color(0xFF38BDF8)),
         helperText: 'STK- followed by 3 digits',
+        helperStyle: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
       ),
       textCapitalization: TextCapitalization.characters,
       validator: (value) {
         final text = value?.trim() ?? '';
         if (text.isEmpty) return 'SKU is required';
         if (!RegExp(r'^STK-\d{3}$', caseSensitive: false).hasMatch(text)) {
-          return 'Must be format STK-### (e.g. STK-101)';
+          return 'Format must be STK-### (e.g. STK-101)';
         }
         return null;
       },
@@ -289,11 +341,13 @@ class _StockFormState extends State<StockForm> {
   Widget _buildNameField() {
     return TextFormField(
       controller: _itemNameController,
+      style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: const InputDecoration(
         labelText: 'Item Name *',
         hintText: 'e.g. USB C Cable',
-        prefixIcon: Icon(Icons.inventory_2_outlined, size: 20),
+        prefixIcon: Icon(Icons.inventory_2_outlined, size: 18, color: Color(0xFF38BDF8)),
         helperText: 'Minimum 3 characters',
+        helperStyle: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
       ),
       validator: (value) {
         final text = value?.trim() ?? '';
@@ -307,11 +361,13 @@ class _StockFormState extends State<StockForm> {
   Widget _buildCategoryField() {
     return DropdownButtonFormField<String>(
       initialValue: _selectedCategory,
+      dropdownColor: const Color(0xFF0F172A),
+      style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: const InputDecoration(
         labelText: 'Category *',
-        prefixIcon: Icon(Icons.category_outlined, size: 20),
+        prefixIcon: Icon(Icons.category_outlined, size: 18, color: Color(0xFF38BDF8)),
       ),
-      hint: const Text('Select category'),
+      hint: const Text('Select category', style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
       items: categories.map((cat) {
         return DropdownMenuItem<String>(value: cat, child: Text(cat));
       }).toList(),
@@ -324,16 +380,19 @@ class _StockFormState extends State<StockForm> {
     return TextFormField(
       controller: _unitPriceController,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: const InputDecoration(
         labelText: 'Unit Price (RM) *',
         hintText: 'e.g. 19.90',
         prefixText: 'RM ',
-        prefixIcon: Icon(Icons.payments_outlined, size: 20),
+        prefixStyle: TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold),
+        prefixIcon: Icon(Icons.payments_outlined, size: 18, color: Color(0xFF10B981)),
         helperText: 'Amount > 0',
+        helperStyle: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
       ),
       validator: (value) {
         final text = value?.trim() ?? '';
-        if (text.isEmpty) return 'Price required';
+        if (text.isEmpty) return 'Price is required';
         final val = double.tryParse(text);
         if (val == null || val <= 0) return 'Must be positive number (> 0)';
         return null;
@@ -346,17 +405,19 @@ class _StockFormState extends State<StockForm> {
       controller: _quantityController,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: const InputDecoration(
         labelText: 'Quantity *',
         hintText: 'e.g. 4',
-        prefixIcon: Icon(Icons.numbers_rounded, size: 20),
+        prefixIcon: Icon(Icons.numbers_rounded, size: 18, color: Color(0xFF38BDF8)),
         helperText: 'Integer >= 0',
+        helperStyle: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
       ),
       validator: (value) {
         final text = value?.trim() ?? '';
         if (text.isEmpty) return 'Quantity required';
         final val = int.tryParse(text);
-        if (val == null || val < 0) return 'Must be whole number >= 0';
+        if (val == null || val < 0) return 'Whole number >= 0';
         return null;
       },
     );
@@ -367,17 +428,19 @@ class _StockFormState extends State<StockForm> {
       controller: _reorderLevelController,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: const InputDecoration(
         labelText: 'Reorder Level *',
         hintText: 'e.g. 5',
-        prefixIcon: Icon(Icons.flag_outlined, size: 20),
+        prefixIcon: Icon(Icons.flag_outlined, size: 18, color: Color(0xFFF59E0B)),
         helperText: 'Integer >= 0',
+        helperStyle: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
       ),
       validator: (value) {
         final text = value?.trim() ?? '';
         if (text.isEmpty) return 'Reorder level required';
         final val = int.tryParse(text);
-        if (val == null || val < 0) return 'Must be whole number >= 0';
+        if (val == null || val < 0) return 'Whole number >= 0';
         return null;
       },
     );
