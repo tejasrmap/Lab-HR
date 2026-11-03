@@ -8,7 +8,7 @@ A Flutter mobile inventory application integrated with Google Firebase Cloud Fir
 
 ### Prerequisites & Required Packages
 * **Flutter SDK:** `>=3.0.0 <4.0.0`
-* **Firebase Project ID:** `net4207-stock-inventory`
+* **Firebase Project ID:** `stock-inventory-lab-f4a7c`
 * **Dependencies (`pubspec.yaml`):**
   * `firebase_core: ^3.6.0`
   * `cloud_firestore: ^5.4.4`

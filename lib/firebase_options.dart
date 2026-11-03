@@ -12,34 +12,33 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       default:
-        return android;
+        return web;
     }
   }
 
-  // Lecturer / Class Project Details (Placeholder for lab configuration)
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA-EXAMPLE-CLASSROOM-API-KEY-4207',
-    appId: '1:1234567890:web:abcdef123456',
-    messagingSenderId: '1234567890',
-    projectId: 'net4207-stock-inventory',
-    storageBucket: 'net4207-stock-inventory.appspot.com',
+    apiKey: 'AIzaSyACz865t21e8fOhLZHrvRiFWCt3WAT7w70',
+    appId: '1:593013781266:web:bed12984f926d3089179cb',
+    messagingSenderId: '593013781266',
+    projectId: 'stock-inventory-lab-f4a7c',
+    authDomain: 'stock-inventory-lab-f4a7c.firebaseapp.com',
+    storageBucket: 'stock-inventory-lab-f4a7c.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA-EXAMPLE-CLASSROOM-API-KEY-4207',
-    appId: '1:1234567890:android:abcdef123456',
-    messagingSenderId: '1234567890',
-    projectId: 'net4207-stock-inventory',
-    storageBucket: 'net4207-stock-inventory.appspot.com',
+    apiKey: 'AIzaSyACz865t21e8fOhLZHrvRiFWCt3WAT7w70',
+    appId: '1:593013781266:web:bed12984f926d3089179cb',
+    messagingSenderId: '593013781266',
+    projectId: 'stock-inventory-lab-f4a7c',
+    storageBucket: 'stock-inventory-lab-f4a7c.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA-EXAMPLE-CLASSROOM-API-KEY-4207',
-    appId: '1:1234567890:ios:abcdef123456',
-    messagingSenderId: '1234567890',
-    projectId: 'net4207-stock-inventory',
-    storageBucket: 'net4207-stock-inventory.appspot.com',
+    apiKey: 'AIzaSyACz865t21e8fOhLZHrvRiFWCt3WAT7w70',
+    appId: '1:593013781266:web:bed12984f926d3089179cb',
+    messagingSenderId: '593013781266',
+    projectId: 'stock-inventory-lab-f4a7c',
+    storageBucket: 'stock-inventory-lab-f4a7c.firebasestorage.app',
     iosBundleId: 'com.example.stockInventoryApp',
   );
 }
-
