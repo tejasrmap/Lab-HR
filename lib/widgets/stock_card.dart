@@ -183,3 +183,4 @@ class StockCard extends StatelessWidget {
     );
   }
 }
+

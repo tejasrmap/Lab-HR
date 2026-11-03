@@ -25,3 +25,4 @@ class FirestoreService {
     await _stockCollection.doc(id).delete();
   }
 }
+
